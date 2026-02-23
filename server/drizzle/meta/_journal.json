@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1771784018664,
+      "tag": "0000_workable_mongu",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1771784522565,
+      "tag": "0001_bright_kate_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1771830128168,
+      "tag": "0002_sharp_miss_america",
+      "breakpoints": true
+    }
+  ]
+}
