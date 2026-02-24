@@ -22,6 +22,27 @@
       "when": 1771830128168,
       "tag": "0002_sharp_miss_america",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1771850765015,
+      "tag": "0003_large_shatterstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1771868338684,
+      "tag": "0004_stiff_toxin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1771869348854,
+      "tag": "0005_gray_prowler",
+      "breakpoints": true
     }
   ]
 }

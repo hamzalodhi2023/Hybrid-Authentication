@@ -1,10 +1,13 @@
+import { and, eq } from "drizzle-orm";
+import { randomInt } from "node:crypto";
+
 //` File Imports
 import { loginValidation } from "../auth.validation.js";
-import { db } from "../../../db/index.js";
-import { users } from "../../../db/schema.js";
-import { eq } from "drizzle-orm";
-import { verifyPassword } from "../../../utils/hashPassword.js";
+import { db } from "../../../db/index.ts";
+import { users, sessions } from "../../../db/schema.ts";
+import { hashPassword, verifyPassword } from "../../../utils/hashPassword.js";
 import { generateToken } from "../../../utils/jwtUtility.js";
+import location from "../../../utils/locationFinder.js";
 
 const login = async (req, res) => {
   const result = loginValidation.safeParse(req.body);
@@ -47,9 +50,42 @@ const login = async (req, res) => {
       });
     }
 
-    //` Generating Token
-    const token = generateToken(userId);
-    console.log(token);
+    //` Variables
+    const sessionId = Math.floor(Math.random() * 1e15)
+      .toString()
+      .padStart(15, "0");
+    const refreshToken = await hashPassword(
+      generateToken({ userId, sessionId }, "7d"),
+    );
+    const accessToken = generateToken({ userId, sessionId }, "15m");
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const { ipAddress, userAgent, device, browser, os } = location(req);
+
+    const updateIsActive = await db
+      .update(sessions)
+      .set({ isActive: false, revokedAt: new Date() })
+      .where(
+        and(
+          eq(sessions.userId, userId),
+          eq(sessions.ipAddress, ipAddress),
+          eq(sessions.userAgent, userAgent),
+          eq(sessions.isActive, true),
+        ),
+      );
+
+    //` Creating Session
+    const insertData = await db.insert(sessions).values({
+      id: sessionId,
+      userId,
+      token: refreshToken,
+      ipAddress,
+      userAgent,
+      device,
+      browser,
+      os,
+      expiresAt,
+      lastUsedAt: new Date(),
+    });
 
     // ! End response
     res.status(200).json({
@@ -58,6 +94,7 @@ const login = async (req, res) => {
       data: null,
     });
   } catch (error) {
+    console.log(error);
     res
       .status(500)
       .json({ message: "Internal server error", error: error, data: null });

@@ -19,7 +19,7 @@ app.use(
   }),
 );
 app.use(cors());
-app.use(helmet());
+// app.use(helmet());
 app.use(morgan("dev"));
 // ` =========================
 // ? Middlewares
@@ -27,6 +27,14 @@ app.use(morgan("dev"));
 
 app.use("/auth", userRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.get("/", (req, res) => {
+  res.send("Server Running...");
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(
+    `Server running on:
+   → Local:   http://localhost:${PORT}
+   → Network: http://192.168.0.35:${PORT}`,
+  );
 });

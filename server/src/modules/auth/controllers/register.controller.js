@@ -1,7 +1,7 @@
 //` File Imports
 import { registerValidation } from "../auth.validation.js";
-import { db } from "../../../db/index.js";
-import { users } from "../../../db/schema.js";
+import { db } from "../../../db/index.ts";
+import { users } from "../../../db/schema.ts";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "../../../utils/hashPassword.js";
 
