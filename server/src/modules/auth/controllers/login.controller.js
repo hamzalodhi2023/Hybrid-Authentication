@@ -8,6 +8,7 @@ import { users, sessions } from "../../../db/schema.ts";
 import { hashPassword, verifyPassword } from "../../../utils/hashPassword.js";
 import { generateToken } from "../../../utils/jwtUtility.js";
 import location from "../../../utils/locationFinder.js";
+import { setRefreshToken, setAccessToken } from "../../../utils/cookies.js";
 
 const login = async (req, res) => {
   const result = loginValidation.safeParse(req.body);
@@ -86,6 +87,9 @@ const login = async (req, res) => {
       expiresAt,
       lastUsedAt: new Date(),
     });
+
+    setRefreshToken({ res, refreshToken });
+    setAccessToken({ res, accessToken });
 
     // ! End response
     res.status(200).json({

@@ -6,12 +6,20 @@ import {
   timestamp,
   boolean,
 } from "drizzle-orm/mysql-core";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const uploads = path.join(__dirname, "uploads");
 
 export const users = mysqlTable("users", {
   id: serial().primaryKey().autoincrement(),
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
+  avatar: varchar({ length: 500 }).default(`${uploads}/default-avatar.png`),
   createdAt: timestamp("created-at").defaultNow().notNull(),
   updatedAt: timestamp("updated-at").defaultNow().onUpdateNow().notNull(),
 });
