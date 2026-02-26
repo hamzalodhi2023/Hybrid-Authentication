@@ -1,1 +1,0 @@
-ALTER TABLE `sessions` MODIFY COLUMN `id` varchar(24) NOT NULL;

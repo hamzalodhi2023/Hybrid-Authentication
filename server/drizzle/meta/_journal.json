@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1771784018664,
-      "tag": "0000_workable_mongu",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1771784522565,
-      "tag": "0001_bright_kate_bishop",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1771830128168,
-      "tag": "0002_sharp_miss_america",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1771850765015,
-      "tag": "0003_large_shatterstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1771868338684,
-      "tag": "0004_stiff_toxin",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1771869348854,
-      "tag": "0005_gray_prowler",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1771934071161,
-      "tag": "0006_big_darwin",
+      "when": 1772097065123,
+      "tag": "0000_naive_riptide",
       "breakpoints": true
     }
   ]

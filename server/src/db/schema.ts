@@ -5,21 +5,17 @@ import {
   varchar,
   timestamp,
   boolean,
+  bigint,
 } from "drizzle-orm/mysql-core";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const uploads = path.join(__dirname, "uploads");
 
 export const users = mysqlTable("users", {
-  id: serial().primaryKey().autoincrement(),
+  id: bigint("id", { mode: "number", unsigned: true })
+    .primaryKey()
+    .autoincrement(),
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
-  avatar: varchar({ length: 500 }).default(`${uploads}/default-avatar.png`),
+  avatar: varchar({ length: 500 }).default("/uploads/default_avatar.png"),
   createdAt: timestamp("created-at").defaultNow().notNull(),
   updatedAt: timestamp("updated-at").defaultNow().onUpdateNow().notNull(),
 });
@@ -28,7 +24,7 @@ export const sessions = mysqlTable("sessions", {
   id: varchar("id", { length: 24 }).primaryKey().unique(),
 
   // 🔗 User Relation
-  userId: int("user_id")
+  userId: bigint("user_id", { mode: "number", unsigned: true })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 
@@ -46,7 +42,7 @@ export const sessions = mysqlTable("sessions", {
 
   // 🔄 Session State
   isActive: boolean("is_active").default(true).notNull(),
-  revokedAt: timestamp("revoked_at").default(null),
+  revokedAt: timestamp("revoked_at"),
 
   // ⏳ Expiry
   expiresAt: timestamp("expires_at").notNull(),

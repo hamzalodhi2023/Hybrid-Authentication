@@ -19,9 +19,9 @@ export const setAccessToken = ({ res, accessToken }) => {
 };
 
 export const getRefreshToken = (req) => {
-  req.cookies("refreshToken");
+  return req.cookies.refreshToken;
 };
 
 export const getAccessToken = (req) => {
-  req.cookies("accessToken");
+  return req.cookies.accessToken;
 };
