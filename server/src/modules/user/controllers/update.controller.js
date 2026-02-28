@@ -21,11 +21,7 @@ const updateProfile = async (req, res) => {
 
     const { name } = result.data;
 
-    const {
-      valid,
-      decoded: { userId, sessionId, iat, exp },
-    } = verifyToken(getAccessToken(req));
-    console.log(userId);
+    const { userId, sessionId } = req.user;
 
     // ` Checking if user exist
     const existingUser = await db
@@ -42,13 +38,10 @@ const updateProfile = async (req, res) => {
     }
 
     //` Variables
-    // const updateIsActive = await db
-    //   .update(users)
-    //   .set({name })
-    //   .where(
-    //       eq(userId ),
-    //     ),
-    //   );
+    const updateIsActive = await db
+      .update(users)
+      .set({ name })
+      .where(eq(users.id, userId));
 
     // ! End response
     res.status(200).json({

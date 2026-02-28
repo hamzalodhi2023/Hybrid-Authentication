@@ -1,4 +1,4 @@
-export const setRefreshToken = ({ res, refreshToken }) => {
+export const setRefreshToken = (res, refreshToken) => {
   res.cookie("refreshToken", refreshToken, {
     maxAge: parseInt(process.env.REFRESH_TOKEN_EXP_TIME),
     httpOnly: true,
@@ -8,7 +8,7 @@ export const setRefreshToken = ({ res, refreshToken }) => {
   });
 };
 
-export const setAccessToken = ({ res, accessToken }) => {
+export const setAccessToken = (res, accessToken) => {
   res.cookie("accessToken", accessToken, {
     maxAge: parseInt(process.env.ACCESS_TOKEN_EXP_TIME),
     httpOnly: false,

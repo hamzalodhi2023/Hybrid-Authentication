@@ -55,9 +55,8 @@ const login = async (req, res) => {
     const sessionId = Math.floor(Math.random() * 1e15)
       .toString()
       .padStart(15, "0");
-    const refreshToken = await hashPassword(
-      generateToken({ userId, sessionId }, "7d"),
-    );
+    const jwtRefreshToken = generateToken({ userId, sessionId }, "7d");
+    const refreshToken = await hashPassword(jwtRefreshToken);
     const accessToken = generateToken({ userId, sessionId }, "15m");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const { ipAddress, userAgent, device, browser, os } = location(req);
@@ -88,8 +87,8 @@ const login = async (req, res) => {
       lastUsedAt: new Date(),
     });
 
-    setRefreshToken({ res, refreshToken });
-    setAccessToken({ res, accessToken });
+    setRefreshToken(res, jwtRefreshToken);
+    setAccessToken(res, accessToken);
 
     // ! End response
     res.status(200).json({
