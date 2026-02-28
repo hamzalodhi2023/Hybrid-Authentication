@@ -36,13 +36,6 @@ const authMiddleware = async (req, res, next) => {
       return res.redirect("https://youtube.com/");
     }
 
-    if (accessToken.valid) {
-      req.user = {
-        userId: isSession[0].userId,
-        sessionId: isSession[0].id,
-      };
-    }
-
     if (isSession[0].userId !== refreshToken.decoded.userId) {
       return res.redirect("https://youtube.com/");
     }
@@ -64,8 +57,8 @@ const authMiddleware = async (req, res, next) => {
       .padStart(15, "0");
 
     const newAccessToken = generateToken(
-      { userId: isSession[0].userId, sessionId },
-      "15m",
+      { userId: isSession[0].userId, sessionId: isSession[0].id },
+      "1m",
     );
 
     req.user = {

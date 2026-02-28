@@ -9,6 +9,7 @@ import { hashPassword, verifyPassword } from "../../../utils/hashPassword.js";
 import { generateToken } from "../../../utils/jwtUtility.js";
 import location from "../../../utils/locationFinder.js";
 import { setRefreshToken, setAccessToken } from "../../../utils/cookies.js";
+import sendMail from "../../../utils/nodeMailer.js";
 
 const login = async (req, res) => {
   const result = loginValidation.safeParse(req.body);
@@ -57,7 +58,7 @@ const login = async (req, res) => {
       .padStart(15, "0");
     const jwtRefreshToken = generateToken({ userId, sessionId }, "7d");
     const refreshToken = await hashPassword(jwtRefreshToken);
-    const accessToken = generateToken({ userId, sessionId }, "15m");
+    const accessToken = generateToken({ userId, sessionId }, "1m");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const { ipAddress, userAgent, device, browser, os } = location(req);
 
@@ -89,6 +90,45 @@ const login = async (req, res) => {
 
     setRefreshToken(res, jwtRefreshToken);
     setAccessToken(res, accessToken);
+
+    await sendMail(
+      email,
+      "New Login to Your Hybrid Authentication Account 🔐",
+      "A new login was detected on your account.",
+      `
+  <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
+    <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px;">
+      
+      <h2 style="color: #111827; margin-bottom: 10px;">
+        New Login Detected 🔐
+      </h2>
+
+      <p style="color: #374151; font-size: 15px;">
+        We noticed a new login to your Hybrid Authentication account.
+      </p>
+
+      <p style="color: #374151; font-size: 15px;">
+        If this was you, no action is needed.
+      </p>
+
+      <p style="color: #b91c1c; font-size: 14px; margin-top: 15px;">
+        If this wasn't you, please reset your password immediately and secure your account.
+      </p>
+
+      <hr style="margin: 20px 0;" />
+
+      <p style="font-size: 13px; color: #6b7280;">
+        For your security, we recommend keeping your login credentials private.
+      </p>
+
+      <p style="font-size: 13px; color: #9ca3af; margin-top: 20px;">
+        © ${new Date().getFullYear()} Hybrid Authentication. All rights reserved.
+      </p>
+
+    </div>
+  </div>
+  `,
+    );
 
     // ! End response
     res.status(200).json({
