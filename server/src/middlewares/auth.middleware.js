@@ -40,10 +40,10 @@ const authMiddleware = async (req, res, next) => {
     const { ipAddress, userAgent, device, browser, os } = location(req);
 
     if (
-      isSession[0].ipAddress !== ipAddress &&
-      isSession[0].userAgent !== userAgent &&
-      isSession[0].device !== device &&
-      isSession[0].browser !== browser &&
+      isSession[0].ipAddress !== ipAddress ||
+      isSession[0].userAgent !== userAgent ||
+      isSession[0].device !== device ||
+      isSession[0].browser !== browser ||
       isSession[0].os !== os
     ) {
       return res.redirect("https://youtube.com/");
