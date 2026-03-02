@@ -1,0 +1,1 @@
+ALTER TABLE `otp_verifications` MODIFY COLUMN `id` varchar(36) NOT NULL;

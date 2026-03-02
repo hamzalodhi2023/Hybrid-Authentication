@@ -6,7 +6,8 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import authRouter from "./src/modules/auth/router.js";
+import authRouterPublic from "./src/modules/auth/authentication.router.js";
+import authRouterProtected from "./src/modules/auth/authorization.router.js";
 import userRouter from "./src/modules/user/router.js";
 import cookieParser from "cookie-parser";
 import authMiddleware from "./src/middlewares/auth.middleware.js";
@@ -38,10 +39,11 @@ app.use(morgan("dev"));
 // ? Middlewares
 // ` =========================
 
-app.use("/auth", authRouter);
+app.use("/auth", authRouterPublic);
 
 app.use(authMiddleware);
 
+app.use("/auth", authRouterProtected);
 app.use("/user", userRouter);
 
 app.get("/", (req, res) => {

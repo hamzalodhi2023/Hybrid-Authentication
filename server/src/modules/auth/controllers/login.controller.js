@@ -1,15 +1,16 @@
 import { and, eq } from "drizzle-orm";
-import { randomInt } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
 //` File Imports
 import { loginValidation } from "../auth.validation.js";
 import { db } from "../../../db/index.ts";
-import { users, sessions } from "../../../db/schema.ts";
+import { users, sessions, otpVerifications } from "../../../db/schema.ts";
 import { hashPassword, verifyPassword } from "../../../utils/hashPassword.js";
 import { generateToken } from "../../../utils/jwtUtility.js";
 import location from "../../../utils/locationFinder.js";
 import { setRefreshToken, setAccessToken } from "../../../utils/cookies.js";
 import sendMail from "../../../utils/nodeMailer.js";
+import generateOTP from "../../../utils/generateOtp.js";
 
 const login = async (req, res) => {
   const result = loginValidation.safeParse(req.body);
@@ -129,6 +130,69 @@ const login = async (req, res) => {
   </div>
   `,
     );
+
+    const isVerified = existingUser[0].isVerified;
+    const otp = generateOTP();
+    const otpHash = await hashPassword(otp);
+    const otpTTL = 5 * 60 * 1000; // 5 minutes in ms
+    if (!isVerified) {
+      const expiresAt = new Date(Date.now() + otpTTL);
+
+      const createOtp = await db.insert(otpVerifications).values({
+        id: randomUUID(),
+        userId,
+        otpHash,
+        expiresAt,
+        ipAddress,
+        userAgent,
+        device,
+        browser,
+        os,
+      });
+
+      await sendMail(
+        email,
+        "Your OTP for Hybrid Authentication 🔐",
+        `Use the following OTP to complete your login: ${otp}`, // short text fallback
+        `
+  <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
+    <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px;">
+      
+      <h2 style="color: #111827; margin-bottom: 10px;">
+        Hybrid Authentication 🔐
+      </h2>
+
+      <p style="color: #374151; font-size: 15px;">
+        A new login to your account was detected.
+      </p>
+
+      <p style="color: #374151; font-size: 15px;">
+        Use the following OTP to complete your login:
+      </p>
+
+      <h1 style="color: #111827; font-size: 28px; letter-spacing: 2px; margin: 20px 0;">
+        ${otp}
+      </h1>
+
+      <p style="color: #374151; font-size: 14px;">
+        This OTP will expire in 5 minutes.
+      </p>
+
+      <hr style="margin: 20px 0;" />
+
+      <p style="font-size: 13px; color: #6b7280;">
+        If you did not attempt to login, please reset your password immediately.
+      </p>
+
+      <p style="font-size: 13px; color: #9ca3af; margin-top: 20px;">
+        © ${new Date().getFullYear()} Hybrid Authentication. All rights reserved.
+      </p>
+
+    </div>
+  </div>
+  `,
+      );
+    }
 
     // ! End response
     res.status(200).json({

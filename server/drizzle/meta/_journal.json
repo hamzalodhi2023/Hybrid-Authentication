@@ -8,6 +8,34 @@
       "when": 1772097065123,
       "tag": "0000_naive_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1772439897727,
+      "tag": "0001_clever_nextwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1772441971355,
+      "tag": "0002_famous_living_lightning",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1772445034918,
+      "tag": "0003_sharp_natasha_romanoff",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1772446126570,
+      "tag": "0004_breezy_madripoor",
+      "breakpoints": true
     }
   ]
 }
