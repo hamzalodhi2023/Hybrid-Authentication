@@ -11,6 +11,7 @@ import location from "../../../utils/locationFinder.js";
 import { setRefreshToken, setAccessToken } from "../../../utils/cookies.js";
 import sendMail from "../../../utils/nodeMailer.js";
 import generateOTP from "../../../utils/generateOtp.js";
+import closeupOtps from "../../../utils/closeupOtps.js";
 
 const login = async (req, res) => {
   const result = loginValidation.safeParse(req.body);
@@ -131,10 +132,13 @@ const login = async (req, res) => {
   `,
     );
 
+    closeupOtps(userId);
+
     const isVerified = existingUser[0].isVerified;
     const otp = generateOTP();
     const otpHash = await hashPassword(otp);
-    const otpTTL = 5 * 60 * 1000; // 5 minutes in ms
+    const otpTTL = 5 * 60 * 1000;
+
     if (!isVerified) {
       const expiresAt = new Date(Date.now() + otpTTL);
 

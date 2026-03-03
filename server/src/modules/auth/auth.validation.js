@@ -37,3 +37,10 @@ export const registerValidation = loginValidation.extend({
       message: "Name can only contain letters and spaces",
     }),
 });
+
+export const otpValidation = z.object({
+  otp: z
+    .string()
+    .length(6, "OTP must be 6 digits")
+    .regex(/^\d+$/, "OTP must contain only numbers"),
+});
