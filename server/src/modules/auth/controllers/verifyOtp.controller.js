@@ -55,6 +55,7 @@ const verifyOtp = async (req, res) => {
         data: null,
       });
     }
+
     const isOtpValid = await verifyPassword(otp, otpData[0].otpHash);
 
     if (!isOtpValid) {

@@ -40,10 +40,11 @@ const login = async (req, res) => {
         data: null,
       });
     }
-
-    // ` Checking if password correct
     const userPass = existingUser[0].password;
     const userId = existingUser[0].id;
+
+    // ` Checking if password correct
+
     const isValid = await verifyPassword(password, userPass);
 
     if (!isValid) {
@@ -64,6 +65,85 @@ const login = async (req, res) => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const { ipAddress, userAgent, device, browser, os } = location(req);
 
+    const isVerified = existingUser[0].isVerified;
+
+    //` Checking isVerified and Send OTP
+    if (!isVerified) {
+      try {
+        closeupOtps(userId);
+
+        const expiresAt = new Date(Date.now() + otpTTL);
+        const otp = generateOTP();
+        const otpHash = await hashPassword(otp);
+        const otpTTL = 5 * 60 * 1000;
+
+        const createOtp = await db.insert(otpVerifications).values({
+          id: randomUUID(),
+          userId,
+          otpHash,
+          expiresAt,
+          ipAddress,
+          userAgent,
+          device,
+          browser,
+          os,
+        });
+
+        await sendMail(
+          email,
+          "Your OTP for Hybrid Authentication 🔐",
+          `Use the following OTP to complete your login: ${otp}`, // short text fallback
+          `
+    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
+      <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px;">
+        
+        <h2 style="color: #111827; margin-bottom: 10px;">
+          Hybrid Authentication 🔐
+        </h2>
+  
+        <p style="color: #374151; font-size: 15px;">
+          A new login to your account was detected.
+        </p>
+  
+        <p style="color: #374151; font-size: 15px;">
+          Use the following OTP to complete your login:
+        </p>
+  
+        <h1 style="color: #111827; font-size: 28px; letter-spacing: 2px; margin: 20px 0;">
+          ${otp}
+        </h1>
+  
+        <p style="color: #374151; font-size: 14px;">
+          This OTP will expire in 5 minutes.
+        </p>
+  
+        <hr style="margin: 20px 0;" />
+  
+        <p style="font-size: 13px; color: #6b7280;">
+          If you did not attempt to login, please reset your password immediately.
+        </p>
+  
+        <p style="font-size: 13px; color: #9ca3af; margin-top: 20px;">
+          © ${new Date().getFullYear()} Hybrid Authentication. All rights reserved.
+        </p>
+  
+      </div>
+    </div>
+    `,
+        );
+
+        return res.status(403).json({
+          message:
+            "Account not verified. Please verify your email to continue.",
+          error: null,
+          data: null,
+        });
+      } catch (error) {
+        return res.status(500).json({ message: "Could not send OTP" });
+      }
+    }
+
+    //` Revoke Old Sessions
     const updateIsActive = await db
       .update(sessions)
       .set({ isActive: false, revokedAt: new Date() })
@@ -90,6 +170,7 @@ const login = async (req, res) => {
       lastUsedAt: new Date(),
     });
 
+    //` Set Token in cookies
     setRefreshToken(res, jwtRefreshToken);
     setAccessToken(res, accessToken);
 
@@ -131,72 +212,6 @@ const login = async (req, res) => {
   </div>
   `,
     );
-
-    closeupOtps(userId);
-
-    const isVerified = existingUser[0].isVerified;
-    const otp = generateOTP();
-    const otpHash = await hashPassword(otp);
-    const otpTTL = 5 * 60 * 1000;
-
-    if (!isVerified) {
-      const expiresAt = new Date(Date.now() + otpTTL);
-
-      const createOtp = await db.insert(otpVerifications).values({
-        id: randomUUID(),
-        userId,
-        otpHash,
-        expiresAt,
-        ipAddress,
-        userAgent,
-        device,
-        browser,
-        os,
-      });
-
-      await sendMail(
-        email,
-        "Your OTP for Hybrid Authentication 🔐",
-        `Use the following OTP to complete your login: ${otp}`, // short text fallback
-        `
-  <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
-    <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px;">
-      
-      <h2 style="color: #111827; margin-bottom: 10px;">
-        Hybrid Authentication 🔐
-      </h2>
-
-      <p style="color: #374151; font-size: 15px;">
-        A new login to your account was detected.
-      </p>
-
-      <p style="color: #374151; font-size: 15px;">
-        Use the following OTP to complete your login:
-      </p>
-
-      <h1 style="color: #111827; font-size: 28px; letter-spacing: 2px; margin: 20px 0;">
-        ${otp}
-      </h1>
-
-      <p style="color: #374151; font-size: 14px;">
-        This OTP will expire in 5 minutes.
-      </p>
-
-      <hr style="margin: 20px 0;" />
-
-      <p style="font-size: 13px; color: #6b7280;">
-        If you did not attempt to login, please reset your password immediately.
-      </p>
-
-      <p style="font-size: 13px; color: #9ca3af; margin-top: 20px;">
-        © ${new Date().getFullYear()} Hybrid Authentication. All rights reserved.
-      </p>
-
-    </div>
-  </div>
-  `,
-      );
-    }
 
     // ! End response
     res.status(200).json({
