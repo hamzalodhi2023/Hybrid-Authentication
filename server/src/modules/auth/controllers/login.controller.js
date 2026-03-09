@@ -60,9 +60,15 @@ const login = async (req, res) => {
     const sessionId = Math.floor(Math.random() * 1e15)
       .toString()
       .padStart(15, "0");
-    const jwtRefreshToken = generateToken({ userId, sessionId }, "7d");
+    const jwtRefreshToken = generateToken(
+      { userId, sessionId },
+      process.env.REFRESH_TOKEN_EXP_TIME,
+    );
     const refreshToken = await hashPassword(jwtRefreshToken);
-    const accessToken = generateToken({ userId, sessionId }, "1m");
+    const accessToken = generateToken(
+      { userId, sessionId },
+      process.env.ACCESS_TOKEN_EXP_TIME,
+    );
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const { ipAddress, userAgent, device, browser, os } = location(req);
 
@@ -77,6 +83,10 @@ const login = async (req, res) => {
         const expiresAt = new Date(Date.now() + otpTTL);
         const otp = generateOTP();
         const otpHash = await hashPassword(otp);
+        const pendingVerificationToken = generateToken(
+          userId,
+          process.env.PENDING_VERIFICATION_TOKEN_TIME,
+        );
 
         const createOtp = await db.insert(otpVerifications).values({
           id: randomUUID(),
@@ -137,7 +147,8 @@ const login = async (req, res) => {
           message:
             "Account not verified. Please verify your email to continue.",
           error: null,
-          data: null,
+          data: pendingVerificationToken,
+          isVerified: false,
         });
       } catch (error) {
         return res.status(500).json({ message: "Could not send OTP" });

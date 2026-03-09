@@ -11,7 +11,7 @@ export const generateToken = (payload, expiry) => {
   return token;
 };
 
-//`
+//` Verify Token
 export const verifyToken = (token) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
