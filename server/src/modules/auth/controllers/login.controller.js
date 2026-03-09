@@ -40,14 +40,15 @@ const login = async (req, res) => {
         data: null,
       });
     }
+
     const userPass = existingUser[0].password;
     const userId = existingUser[0].id;
 
     // ` Checking if password correct
 
-    const isValid = await verifyPassword(password, userPass);
+    const isValidPass = await verifyPassword(password, userPass);
 
-    if (!isValid) {
+    if (!isValidPass) {
       return res.status(401).json({
         message: "Invalid credentials",
         error: null,
@@ -72,10 +73,10 @@ const login = async (req, res) => {
       try {
         closeupOtps(userId);
 
+        const otpTTL = 5 * 60 * 1000;
         const expiresAt = new Date(Date.now() + otpTTL);
         const otp = generateOTP();
         const otpHash = await hashPassword(otp);
-        const otpTTL = 5 * 60 * 1000;
 
         const createOtp = await db.insert(otpVerifications).values({
           id: randomUUID(),
