@@ -84,7 +84,7 @@ const login = async (req, res) => {
         const otp = generateOTP();
         const otpHash = await hashPassword(otp);
         const pendingVerificationToken = generateToken(
-          userId,
+          { userId },
           process.env.PENDING_VERIFICATION_TOKEN_TIME,
         );
 
@@ -151,6 +151,7 @@ const login = async (req, res) => {
           isVerified: false,
         });
       } catch (error) {
+        console.log(error);
         return res.status(500).json({ message: "Could not send OTP" });
       }
     }

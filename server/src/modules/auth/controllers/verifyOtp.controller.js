@@ -20,6 +20,8 @@ const verifyOtp = async (req, res) => {
     }
 
     const otp = result.data.otp;
+    const token = result.data;
+    console.log(token);
 
     //` FINDING USER
     const otpData = await db

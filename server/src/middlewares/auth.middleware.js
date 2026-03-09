@@ -58,7 +58,7 @@ const authMiddleware = async (req, res, next) => {
 
     const newAccessToken = generateToken(
       { userId: isSession[0].userId, sessionId: isSession[0].id },
-      "1m",
+      process.env.ACCESS_TOKEN_EXP_TIME,
     );
 
     req.user = {
